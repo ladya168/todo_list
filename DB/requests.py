@@ -1,6 +1,7 @@
 from sqlalchemy import select
 from DB.db import Notes, Session, Users
-from schemas import NoteMod, UserLogMod
+from schemas import NoteAddMod, NoteMod, UserLogMod
+from service import identification
 
 
 
@@ -38,4 +39,34 @@ async def add_notes(data: NoteMod, user_id: int):
         note_id = query.id 
         await session.commit()
         return note_id
+
+async def del_notes(id_notes: int, id_user: int):
+    async with Session() as session:
+        query = select(Notes).where(Notes.id == id_notes)
+        notes = await session.execute(query)
+        result = notes.scalars().one_or_none()
+
+        identification(result)
+
+        await session.delete(result)
+        await session.commit()
+        return id
+    
+
+async def upgrade_notes(data: NoteMod, id: int):
+    async with Session() as session:
+        query = select(Notes).where(Notes.id == id).where(Notes.userid == data.userid)
+        old_notes = (await session.execute(query)).scalars().one_or_none()
+
+        identification(old_notes)
+
+        data_d = data.model_dump()
+        for key, value in data_d.items():
+            if value:
+                setattr(old_notes, key, value)
+        await session.commit()
+        return id
+
+
+
 

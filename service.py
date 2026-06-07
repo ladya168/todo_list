@@ -46,6 +46,10 @@ async def insert_all_notes(id: int) -> list :
         result.append(object)
     return result
 
+def identification(data):
+    if not data:
+        raise HTTPException(status_code=404, detail="Item not found")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("dropping all tables")
@@ -54,3 +58,4 @@ async def lifespan(app: FastAPI):
     await create_all()
     yield
     print("App stopped")
+

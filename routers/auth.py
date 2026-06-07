@@ -16,7 +16,7 @@ async def reg_user(creds: UserLogMod, response: Response):
         return {f"my_access_token":f"{token}"}
     raise HTTPException
 
-@router.get("/login")
+@router.post("/login")
 async def login_user(creds: UserLogMod, response: Response):
     result = await check_user_exists(creds)
     if result:
